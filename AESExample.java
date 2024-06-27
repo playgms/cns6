@@ -1,47 +1,47 @@
-import javax.crypto.*;
+import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.*;
-import java.util.Scanner;
+import java.util.Base64;
+import java.util.*;
+
+public class AES {
+
+   private static final String key = "1234567890123456"; // 128 bit key
 
 
-public class AESExample {
-    private static String bytesToHex(byte[] bytes) {
-        StringBuilder result = new StringBuilder();
-        for (byte b : bytes) {
-            result.append(String.format("%02X", b));
+    public static String encrypt(String strToEncrypt) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return result.toString();
-        
-}
-    public static void main(String[] args) throws Exception {
-        Scanner sc=new Scanner(System.in);
-        System.out.print("Enter the plane text: ");
-        String plaintext = sc.nextLine(); // Plaintext to be encrypted
-       
-        // Generate a 128-bit AES key
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(128); // 128-bit AES key
-        SecretKey secretKey = keyGen.generateKey();
+        return null;
+    }
 
-        // Create cipher object and initialize with the key
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+    public static String decrypt(String strToDecrypt) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-        // Encrypt the plaintext
-        byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
+    public static void main(String[] args) {
+        System.out.println("Enter the plaintext: ");
+        Scanner sc = new Scanner(System.in);
+        String originalString = sc.nextLine();
+        String encryptedString = encrypt(originalString);
+        String decryptedString = decrypt(encryptedString);
 
-        // Print the encrypted data
-        System.out.println("Encrypted: " + bytesToHex(encryptedBytes));
-
-        // Initialize the cipher for decryption
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-
-        // Decrypt the encrypted data
-        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-
-        // Print the decrypted plaintext
-        System.out.println("Decrypted: " + new String(decryptedBytes));
+        System.out.println("Original String: " + originalString);
+        System.out.println("Encrypted String: " + encryptedString);
+        System.out.println("Decrypted String: " + decryptedString);
         sc.close();
     }
-    
 }
